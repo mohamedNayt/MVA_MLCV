@@ -130,17 +130,18 @@ implementation document
 Result of Prediction
 ====================
 
-The function 'svmpredict' has three outputs. The first one,
-predictd_label, is a vector of predicted labels. The second output,
-accuracy, is a vector including accuracy (for classification), mean
+The function 'svmpredict' has three outputs. 
+
+- The first one, predictd_label, is a vector of predicted labels. 
+- The second output, accuracy, is a vector including accuracy (for classification), mean
 squared error, and squared correlation coefficient (for regression).
-The third is a matrix containing decision values or probability
-estimates (if '-b 1' is specified). If k is the number of classes,
-for decision values, each row includes results of predicting
-k(k-1/2) binary-class SVMs. For probabilities, each row contains k values
-indicating the probability that the testing instance is in each class.
-Note that the order of classes here is the same as 'Label' field
-in the model structure.
+- The third is a matrix containing decision values or probability estimates (if '-b 1' is specified). 
+
+If k is the number of classes, for decision values, each row includes results of predicting k(k-1/2) binary-class SVMs. 
+
+For probabilities, each row contains k values indicating the probability that the testing instance is in each class.
+
+Note that the order of classes here is the same as 'Label' field in the model structure.
 
 Examples
 ========

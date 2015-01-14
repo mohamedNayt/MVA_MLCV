@@ -1,0 +1,1162 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+MLCV: Programming Assignement 3
+\end_layout
+
+\begin_layout Author
+Mohamed N'AITN'BARK
+\end_layout
+
+\begin_layout Date
+17/11/1990
+\end_layout
+
+\begin_layout Section
+Expectation Maximization for a Mixture of gaussians
+\end_layout
+
+\begin_layout Paragraph
+The data used in this part is generated from a 3 gaussians mixture distribution:
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $p_{1}N(\mu_{1},\Sigma_{1})+p_{2}N(\mu_{2},\Sigma_{2})+p_{3}N(\mu_{3},\Sigma_{3})$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\mathbf{p=}[0.25,0.4,0.35]$
+\end_inset
+
+ ,
+\begin_inset Formula $\mu_{1}=[1,2]$
+\end_inset
+
+ , 
+\begin_inset Formula $\mu_{2}=[-3,-5]$
+\end_inset
+
+ , 
+\begin_inset Formula $\mu_{3}=[6,-2]$
+\end_inset
+
+ , 
+\begin_inset Formula $\Sigma_{1}=\begin{bmatrix}2 & 0\\
+0 & 0.5
+\end{bmatrix}$
+\end_inset
+
+ ,
+\begin_inset Formula $\Sigma_{2}=\begin{bmatrix}1 & 0\\
+0 & 1
+\end{bmatrix}$
+\end_inset
+
+ ,
+\begin_inset Formula $\Sigma_{3}=\begin{bmatrix}2 & -1\\
+-1 & 2
+\end{bmatrix}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename gm_data.eps
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Our data
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+K-Means:
+\end_layout
+
+\begin_layout Paragraph
+The steps of the implemented K-means algorithm are:
+\end_layout
+
+\begin_layout Enumerate
+Initialize the centers by three randomly chosen points from the data.
+\end_layout
+
+\begin_layout Enumerate
+Compute for every point the distance to each of the three centers.
+\end_layout
+
+\begin_layout Enumerate
+Assign to each point the nearest center.
+\end_layout
+
+\begin_layout Enumerate
+Update the value of each center by the value of the mean of the points assigned
+ to it.
+\end_layout
+
+\begin_layout Enumerate
+Compute the distortion.
+\end_layout
+
+\begin_layout Paragraph
+We apply the same algorithm for 20 different initializations, then we choose
+ the initialization that come with the final minimal distortion.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "49col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename kmeans.eps
+	scale 45
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "49col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename distortion.eps
+	scale 45
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Right: The result of the KMeans algorithm.
+ Left: the distortion as a function of iterations.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Expectation Maximization:
+\end_layout
+
+\begin_layout Paragraph
+We apply the EM algorithm using the centers found by Kmeans as an initialization
+ for the means, identity matrices for the covariance matrices and a uniform
+ probability.
+ We also keep track of the likelihood at each iteration.
+\end_layout
+
+\begin_layout Paragraph
+The EM algorithm gives the following clusters:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="4" columns="4">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Cluster
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Probability
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Center
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Covariance matrix
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$0.4$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$[-3 ,-4.94]$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\begin{bmatrix}0.99 & 0.1\\
+0.1 & 0.99
+\end{bmatrix}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$0.35$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$[5.9 , -1.0]$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\begin{bmatrix}2.07 & -1.23\\
+-1.23 & 2.39
+\end{bmatrix}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$0.25$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$[1 , 2.05]$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\begin{bmatrix}1.96 & 0.02\\
+0.02 & 0.47
+\end{bmatrix}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+We can see that the algorithm recovered efficiently the parameters of our
+ distribution.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "49col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename em.eps
+	scale 45
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "49col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename likelihood.eps
+	scale 45
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Right: The result of the EM algorithm.
+ Left: the likelihood as a function of iterations.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+Using the bayes rule, we assign to each point of regular grid on the domain
+ of our data the cluster to which it belongs, then we use the 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$contour$
+\end_layout
+
+\end_inset
+
+ function of matlab to plot the decision boundaries.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename em_bayes.eps
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Decision boundaries
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Sum/Max-Product algorithms:
+\end_layout
+
+\begin_layout Paragraph
+The implementation of the Sum-Product algorithm given here is based on a
+ recursive approach:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\series bold
+SumProduct(edge, graph):
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+N
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$
+\backslash
+leftarrow$
+\end_layout
+
+\end_inset
+
+Neighbors of edge in graph
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+result
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$
+\backslash
+leftarrow$
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$[1 1 1 ...
+ 1]$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\series bold
+FOR 
+\series default
+neigbor
+\series bold
+ IN 
+\series default
+N
+\series bold
+:
+\series default
+ 
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+result
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$
+\backslash
+leftarrow$
+\end_layout
+
+\end_inset
+
+result*Sum/MaxMessage(neighbor,edge,graph)
+\end_layout
+
+\begin_layout Plain Layout
+
+\series bold
+Sum/MaxMessage(edge2,edge1,graph):
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+N
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$
+\backslash
+leftarrow$
+\end_layout
+
+\end_inset
+
+Neighbors of edge2 in graph except maybe edge1
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+result
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$
+\backslash
+leftarrow$
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$[1 1 1 ...
+ 1]$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\series bold
+IF
+\series default
+ N 
+\series bold
+IS 
+\series default
+empty:
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+result
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$
+\backslash
+leftarrow$
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$
+\backslash
+sum_{edge2} 
+\backslash
+Phi(edge1,edge2)$
+\end_layout
+
+\end_inset
+
+ or 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$max_{edge2} 
+\backslash
+Phi(edge1,edge2)$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\series bold
+ELSE:
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\series bold
+FOR 
+\series default
+neigbor
+\series bold
+ IN 
+\series default
+N
+\series bold
+:
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+result
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$
+\backslash
+leftarrow$
+\end_layout
+
+\end_inset
+
+result*SumMessage(neighbor,edge2)
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 1cm
+\end_inset
+
+result
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$
+\backslash
+leftarrow$
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$
+\backslash
+Phi(edge1,edge2).result$
+\end_layout
+
+\end_inset
+
+ or 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$[max_{edge2} 
+\backslash
+Phi(edge1,edge2)*result(edge2)]_{edge1}$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Sum-Max Product algorithm
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Using the SumProduct algorithm for our graph we find that 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$Z=1.915$
+\end_layout
+
+\end_inset
+
+ and 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$P(X_1)=[0.2914, 0.5311, 0.1775]$
+\end_layout
+
+\end_inset
+
+ and 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$P(X_2)=[0.4543, 0.5457]$
+\end_layout
+
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Itemize
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$P([1, 2, 4, 2, 1]) = 0.0056$
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$P([3, 1, 2, 1, 2]) = 0.0033$
+\end_layout
+
+\end_inset
+
+ , 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$P([2, 2, 1, 2, 1]) = 0.0134$
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\end_body
+\end_document

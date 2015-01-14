@@ -50,21 +50,25 @@ for i=1:size(gamma_range,2)
 end
 
 figure,imagesc(cv_error)
+
 print('-dpng','cv_error');
 %%
 %Pick the best gamma and cost - those that minimize the cv_error
 %and train an svm using the full training set. 
 
 [min_err, min_ind] = min(cv_error(:));
+%min_err=0.148
 col = floor(min_ind/Ncosts);
-cost = cost_range(col);
-gamma = gamma_range(min_ind - col*Ngammas);
-parameter_string = sprintf('-s 0 -g %.5f -c %.5f',gamma,cost');
+%cost = cost_range(col+1);
+%gamma = gamma_range(min_ind - col*Ngammas);
+gamma = 33.6;
+cost = 4.83;
+parameter_string = sprintf('-s 0 -g %.5f -c %.5f',gamma,cost);
 model = svmtrain_libsvm(labels', features', parameter_string);
 
 %% visualize the model
 SVs         = model.SVs;
-[gr_X,gr_Y] = meshgrid([0:.01:1],[0:.01:1]);
+[gr_X,gr_Y] = meshgrid(0:.01:1,0:.01:1);
 [sv,sh]     = size(gr_X);
 coords      = [gr_X(:)';gr_Y(:)'];
 dummy       = zeros(1,size(coords,2));
@@ -85,11 +89,26 @@ axis equal
 
 print('-depsc','values_svm');
 
+%% Visuailze the data with the model
+[gr_X,gr_Y] = meshgrid(0:.01:1,0:.01:1);
+coords      = [gr_X(:)';gr_Y(:)'];
+dummy       = zeros(1,size(coords,2));
+
+[~, ~, dec_values]   = svmpredict_libsvm(dummy',coords', model);
+values               = reshape(dec_values,[sv,sh]);
+
+
+figure,
+contour(gr_X,gr_Y,values,[-1.0,0,1.0],'linewidth',2);hold on,
+scatter(features(1,pos),features(2,pos),'r','filled'); hold on,
+scatter(features(1,neg),features(2,neg),'b','filled'); 
+
+print('-depsc','data_svm');
 
 
 %% Performance on test set
 [test_features,test_labels] = construct_data(nsamples,'test',problem,'plusminus');
 [predict_label, accuracy, dec_values]   = svmpredict_libsvm(test_labels', test_features', model);
 nerrors = mean(predict_label~=test_labels');
-
+%nerrors=0.18
 
